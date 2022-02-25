@@ -6,7 +6,10 @@ fos_rest:
     serializer:
         serialize_null: true
     body_converter:
+        validate: true
+        validation_errors_argument: violations
         enabled: true
     format_listener:
         rules:
           - { path: '^/', priorities: ['json'], fallback_format: 'json' }
+    param_fetcher_listener: true
