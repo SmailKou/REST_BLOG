@@ -3,9 +3,11 @@
 namespace App\Controller;
 
 use App\Entity\Article;
+use App\Exception\ResourceValidationException;
 use App\Representation\Articles;
 use Doctrine\Persistence\ManagerRegistry;
 use FOS\RestBundle\Request\ParamFetcherInterface;
+use mysql_xdevapi\Exception;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use FOS\RestBundle\Controller\Annotations\Get;
 use FOS\RestBundle\Controller\Annotations\View;
@@ -48,11 +50,17 @@ class ArticleController extends AbstractFOSRestController
      *         "validator"={ "groups"="creation" }
      *     }
      *     )
+     * @throws ResourceValidationException
      */
     public function createAction(Article $article, ManagerRegistry $doctrine, ConstraintViolationList $violations)
     {
         if (count($violations)) {
-            return $this->view($violations, Response::HTTP_BAD_REQUEST);
+            $message = 'The JSON sent contains invalid data. Here are the errors you need to correct: ';
+            foreach ($violations as $violation) {
+                $message .= sprintf("Field %s: %s ", $violation->getPropertyPath(), $violation->getMessage());
+            }
+
+            throw new ResourceValidationException($message);
         }
 
         $em = $doctrine->getManager();
