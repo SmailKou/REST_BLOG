@@ -12,3 +12,4 @@
 /migrations/
 /symfony.lock
 ###< symfony/framework-bundle ###
+/.gitignore
